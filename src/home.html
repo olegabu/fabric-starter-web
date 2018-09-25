@@ -1,0 +1,34 @@
+<template>
+  <require from="./resources/elements/key"></require>
+
+  <div class="row">
+    <div class="col-sm-6">
+      <h4 t="orgList">orgList</h4>
+      <ul>
+        <li repeat.for="o of orgList">${o.key}</li>
+      </ul>
+    </div>
+    <div>
+      <h4 t="channelList">channelList</h4>
+      <ul>
+        <li repeat.for="o of channelList">${o}</li>
+      </ul>
+    </div>
+  </div>
+  <table class="table table-striped"
+         aurelia-table="data.bind: storageList; display-data.bind: $storageListDisplayData">
+    <caption style="caption-side: top"><span t="storageList">storageList</span></caption>
+    <thead>
+    <tr>
+      <th><span t="security">security</span></th>
+      <th><span t="storage">storage</span></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr repeat.for="o of $storageListDisplayData">
+      <td><key data.bind="o.key"></key></td>
+      <td>${o.value}</td>
+    </tr>
+    </tbody>
+  </table>
+</template>

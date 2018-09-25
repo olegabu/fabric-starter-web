@@ -1,0 +1,210 @@
+<template>
+  <require from="./resources/elements/key"></require>
+
+  <table class="table table-striped"
+         aurelia-table="data.bind: accountList; display-data.bind: $accountListDisplayData">
+      <caption style="caption-side: top; text-transform: uppercase; text-align: left;">
+      <button class="float-none btn btn-success" show.bind="canEdit('account')" click.trigger="setNew('account')"><span t="create">create</span></button>
+    </caption>
+    <thead>
+    <tr>
+      <th t="key"></th>
+
+      <th t="type"></th>
+      <th t="typeName"></th>
+
+      <th t="counterparty"></th>
+      <th t="comment"></th>
+
+      <th t="createdAt"></th>
+      <th t="updatedAt"></th>
+      <th t="closedAt"></th>
+      <th t="status"></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr repeat.for="o of $accountListDisplayData">
+      <td>
+        <button class="btn btn-link" click.trigger="setCurrent(o.key)"><key data.bind="o.key"></key></button>
+      </td>
+
+      <td>${o.value.aType}</td>
+      <td>${accountTypeByName[o.value.aType] || '???'}</td>
+
+      <td>${resolveCounterparty(o.value)}</td>
+      <td>${o.value.comment}</td>
+
+      <td>${o.value.createdAt}</td>
+      <td>${o.value.updatedAt}</td>
+      <td>${o.value.closedAt}</td>
+      <td>${o.value.status}</td>
+    </tr>
+    </tbody>
+  </table>
+  <form submit.delegate="put(accountEdit, 'account')" show.bind="accountEdit.key || accountEdit.new">
+
+    <!-- If it's existing entity: -->
+    <!-- <div class="form-group row" show.bind="!accountEdit.new">
+      <label class="col-sm-2 col-form-label" t="id">id</label>
+      <div class="col-sm-10">
+        <input type="text" readonly class="form-control" value.bind="accountEdit.id">
+      </div>
+    </div> -->
+    <div class="form-group row" show.bind="!accountEdit.new">
+      <label class="col-sm-2 col-form-label" t="type">type</label>
+      <div class="col-sm-10">
+        <input type="text" readonly class="form-control" value.bind="accountEdit.value.aType">
+      </div>
+    </div>
+    <div class="form-group row" show.bind="!accountEdit.new">
+      <label class="col-sm-2 col-form-label" t="number">number</label>
+      <div class="col-sm-10">
+        <input type="text" readonly class="form-control" value.bind="accountEdit.value.number">
+      </div>
+    </div>
+
+    <!-- If it's entity creation: -->
+    <div class="form-group row" show.bind="accountEdit.new">
+      <label class="col-sm-2 col-form-label" t="type">type</label>
+      <div class="col-sm-10">
+        <select class="form-control" value.bind="accountEdit.value.aType" change.delegate="fireAccountTypeChange(accountEdit.value.aType)">
+          <option repeat.for="o of accountTypeList" model.bind="o.id">${o.id} - ${o.value.name}</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group row" show.bind="accountEdit.new">
+      <label class="col-sm-2 col-form-label" t="number">number</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" value.bind="accountEdit.value.number" required>
+      </div>
+    </div>
+
+    <!--                            -->
+    <!-- For L10 - add Owner        -->
+    <!--                            -->
+    <!-- <div class="form-group row" show.bind="accountEdit.isL10">
+      <label class="col-sm-2 col-form-label" t="owner">owner</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" value.bind="accountEdit.value.owner">
+      </div>
+    </div> -->
+
+    <div class="form-group row" show.bind="accountEdit.isL10">
+      <label class="col-sm-2 col-form-label" t="owner">owner</label>
+      <div class="col-sm-10">
+        <select class="form-control" value.bind="accountEdit.value.owner">
+          <option repeat.for="o of deponentList" model.bind="o.value.ogrn">${o.value.name}</option>
+        </select>
+      </div>
+    </div>
+
+
+    <!--                            -->
+    <!-- L34 -->
+    <!--                            -->
+    <!-- <div class="form-group row" show.bind="accountEdit.isL34">
+      <label class="col-sm-2 col-form-label" t="activeCounterparty">activeCounterparty</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" value.bind="accountEdit.value.activeCounterparty">
+      </div>
+    </div> -->
+
+    <div class="form-group row" show.bind="accountEdit.isL34">
+      <label class="col-sm-2 col-form-label" t="activeCounterparty">activeCounterparty</label>
+      <div class="col-sm-10">
+        <select class="form-control" value.bind="accountEdit.value.activeCounterparty">
+          <option repeat.for="o of depositoryList" model.bind="o.value.ogrn">${o.value.name}</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group row" show.bind="accountEdit.isL34">
+      <label class="col-sm-2 col-form-label" t="activeCounterpartyAccount">activeCounterpartyAccount</label>
+      <div class="col-sm-10">
+        <input type="number" class="form-control" value.bind="accountEdit.value.activeCounterpartyAccount">
+      </div>
+    </div>
+
+
+    <!--                            -->
+    <!-- A24 -->
+    <!--                            -->
+    <!-- <div class="form-group row" show.bind="accountEdit.isA24">
+      <label class="col-sm-2 col-form-label" t="passiveCounterparty">passiveCounterparty</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" value.bind="accountEdit.value.passiveCounterparty">
+      </div>
+    </div> -->
+
+    <div class="form-group row" show.bind="accountEdit.isA24">
+      <label class="col-sm-2 col-form-label" t="passiveCounterparty">passiveCounterparty</label>
+      <div class="col-sm-10">
+        <select class="form-control" value.bind="accountEdit.value.passiveCounterparty">
+          <option repeat.for="o of depositoryList" model.bind="o.value.ogrn">${o.value.name}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group row" show.bind="accountEdit.isA24">
+      <label class="col-sm-2 col-form-label" t="passiveCounterpartyAccount">passiveCounterpartyAccount</label>
+      <div class="col-sm-10">
+        <input type="number" class="form-control" value.bind="accountEdit.value.passiveCounterpartyAccount">
+      </div>
+    </div>
+
+    <!--                                    -->
+    <!-- For A10 there are no additions     -->
+    <!--                                    -->
+
+    <!--  For every type we have a comment  -->
+    <!--                                    -->
+    <div class="form-group row">
+      <label class="col-sm-2 col-form-label" t="comment">comment</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" value.bind="accountEdit.value.comment">
+      </div>
+    </div>
+
+    <!--                        -->
+    <!-- Section related stuff  -->
+    <!--                        -->
+    <div class="form-group row">
+      
+      <label class="col-sm-2 col-form-label" t="sectionList">sectionList</label>
+      <div class="col-sm-10">
+        <div class="row" repeat.for="o of accountEdit.value.sections">
+          <div class="col-sm-4">${o.id}</div>
+          <div class="col-sm-4">${resolveSectionTypeName(o.sectionType)}</div>
+          <div class="col-sm-2"><button type="button" class="btn btn-link" click.trigger="removeSection(o.id)" t="delete">delete</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="form-group row">
+      <label class="col-sm-2 col-form-label" t="section">section</label>
+      <div class="col-sm-4">
+        <input type="number" class="form-control" value.bind="accountEdit.sectionId">
+      </div>
+      <div class="col-sm-4">
+        <select class="form-control" value.bind="accountEdit.sectionType">
+          <option repeat.for="o of sectionTypeList" model.bind="o.id">${o.value.name}</option>
+        </select>
+      </div>
+      <div class="col-sm-2">
+        <button type="button" class="btn btn-link" click.trigger="addSection()" t="add">add</button>
+      </div>
+    </div>
+    <div class="form-group row">
+      <div class="col-sm-6">
+        <button type="submit" class="btn btn-success" t="save">save</button>
+      </div>
+      <div class="col-sm-6">
+        <button class="btn btn-danger float-right" show.bind="!accountEdit.new" click.trigger="remove(accountEdit.key)" t="delete">delete</button>
+      </div>
+    </div>
+  </form>
+  <dl class="row" show.bind="accountView">
+    <dt class="col-sm-2" t="key">key</dt>
+    <dd class="col-sm-10">${accountView.key}</dd>
+    <dt class="col-sm-2" t="name">name</dt>
+    <dd class="col-sm-10">${accountView.value.name}</dd>
+  </dl>
+</template>
