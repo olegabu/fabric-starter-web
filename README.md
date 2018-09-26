@@ -1,7 +1,7 @@
 # Web application for Hyperledger Fabric decentralized application 
 
 Starter application built with [Aurelia](https://aurelia.io/) to connect to 
-[Fabric REST API servers](https://github.com/olegabu/fabric-starter-rest) and transact on 
+[REST API servers](https://github.com/olegabu/fabric-starter-rest) and transact on 
 [Hyperledger Fabric](https://www.hyperledger.org/projects/fabric) blockchain network
 created with [Fabric Starter](https://github.com/olegabu/fabric-starter).
 
