@@ -1,8 +1,9 @@
-# Web application for [Fabric Starter](https://github.com/olegabu/fabric-starter) decentralized application 
+# Web application for Hyperledger Fabric decentralized application 
 
-Sample application built with [Aurelia](https://aurelia.io/) to connect to 
-[Fabric REST API server](https://github.com/MaxXx1313/fabric-rest) and transact on 
-[Hyperledger Fabric](https://www.hyperledger.org/projects/fabric) blockchain network.
+Starter application built with [Aurelia](https://aurelia.io/) to connect to 
+[Fabric REST API servers](https://github.com/olegabu/fabric-starter-rest) and transact on 
+[Hyperledger Fabric](https://www.hyperledger.org/projects/fabric) blockchain network
+created with [Fabric Starter](https://github.com/olegabu/fabric-starter).
 
 ## Install and build
 
@@ -22,26 +23,11 @@ npm install && au build
 ```
 ## Create and start the network
 
-Follow instructions on  [Fabric Starter](https://github.com/olegabu/fabric-starter) to create a network of four organizations
+Follow instructions on  [Fabric Starter](https://github.com/olegabu/fabric-starter) to create a network of member 
+organizations who will run their REST API servers which will serve this web app.
 
-- orderer
-- a
-- b
-- c
-
-and channels
-- common
-- a-b
-- a-c
-- b-c
-
-## Connect to the API servers
-
-Once the network is up each organization's REST API servers will be running and accessible by urls
-
-- a [http://localhost:3000](http://localhost:3000)
-- b [http://localhost:3001](http://localhost:3001)
-- c [http://localhost:3002](http://localhost:3002)
+- org1 [http://localhost:3000](http://localhost:3000)
+- org2 [http://localhost:3001](http://localhost:3001)
 
 ## Serve by the API servers
 

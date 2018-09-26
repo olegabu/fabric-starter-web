@@ -49,28 +49,29 @@ export class ChaincodeService {
       }
 
       promise.then(response => {
-        if (response.status === 401) {
-          this.alertService.info('session expired, logging you out');
-          this.identityService.logout();
-          reject(new Error(response.statusText));
-        } else {
-          return response.json();
-        }
-      })
-      .then(j => {
-        log.debug('fetch', j);
+        response.json().then(j => {
+          log.debug('fetch', j);
 
-        if (j.message) {
-          this.alertService.error(j.message);
-          reject(new Error(j.message));
-        } else {
-          resolve(j);
-        }
-      })
-      .catch(err => {
-        this.alertService.error(`caught ${err}`);
-        reject(err);
-      });
+          if (!response.ok) {
+            const msg = `${response.statusText} ${j}`;
+
+            if (response.status === 401) {
+              this.alertService.info('session expired, logging you out');
+              this.identityService.logout();
+            } else {
+              this.alertService.error(msg);
+            }
+
+            reject(new Error(msg));
+          } else {
+            resolve(j);
+          }
+        });
+
+      }).catch(err => {
+          this.alertService.error(`caught ${err}`);
+          reject(err);
+        });
     });
   }
 
@@ -87,9 +88,9 @@ export class ChaincodeService {
 
         resolve(channels);
       })
-      .catch(err => {
-        reject(err);
-      });
+        .catch(err => {
+          reject(err);
+        });
     });
   }
 
@@ -101,17 +102,17 @@ export class ChaincodeService {
 
     const params = {
       fcn: func,
-      args: JSON.stringify(args),
-      peer: `${peerOrg}/peer0`
+      args: json(args),
+      // peer: `${peerOrg}/peer0`
     };
 
     return new Promise((resolve, reject) => {
       this.fetch(`${url}${channel}/chaincodes/${chaincode}`, params, 'get', org, username).then(j => {
-        resolve(j.result);
-      })
-      .catch(err => {
-        reject(err);
-      });
+        // log.debug('query', j);
+        resolve(JSON.parse(j[0]));
+      }).catch(err => {
+          reject(err);
+        });
     });
   }
 
@@ -133,16 +134,16 @@ export class ChaincodeService {
     const params = {
       fcn: func,
       args: args,
-      peers: peers
+      // peers: peers
     };
 
     return new Promise((resolve, reject) => {
       this.fetch(`${url}${channel}/chaincodes/${chaincode}`, params, 'post', org, username).then(j => {
         resolve(j.transaction);
       })
-      .catch(err => {
-        reject(err);
-      });
+        .catch(err => {
+          reject(err);
+        });
     });
   }
 

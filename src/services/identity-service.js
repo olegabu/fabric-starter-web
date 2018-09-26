@@ -2,7 +2,6 @@ import {inject} from 'aurelia-framework';
 import {LogManager} from 'aurelia-framework';
 import {Aurelia} from 'aurelia-framework';
 import {HttpClient, json} from 'aurelia-fetch-client';
-import {AlertService} from './alert-service';
 import {ConfigService} from './config-service';
 import {Config} from '../config';
 
@@ -10,13 +9,12 @@ let log = LogManager.getLogger('IdentityService');
 
 const baseUrl = Config.getUrl('users');
 
-@inject(Aurelia, HttpClient, AlertService, ConfigService)
+@inject(Aurelia, HttpClient, ConfigService)
 export class IdentityService {
 
-  constructor(aurelia, http, alertService, configService) {
+  constructor(aurelia, http, configService) {
     this.aurelia = aurelia;
     this.http = http;
-    this.alertService = alertService;
     this.configService = configService;
 
     this.configService.get().then(config => {
@@ -55,20 +53,24 @@ export class IdentityService {
         method: 'post',
         body: json(params)
       })
-      .then(response => response.json())
-      .then(j => {
-        log.debug(j);
+      .then(response => {
+        response.json().then(j => {
+          if(!response.ok) {
+            reject(new Error(`cannot enroll ${response.status} ${j}`));
+          } else {
+            log.debug(j);
 
-        IdentityService.setJwt(j, org, username);
+            IdentityService.setJwt(j, org, username);
 
-        this.username = username;
-        this.alertService.success(`${username} logged in`);
+            this.username = username;
 
-        if(!org) {
-          this.aurelia.setRoot('app');
-        }
+            if(!org) {
+              this.aurelia.setRoot('app');
+            }
 
-        resolve();
+            resolve();
+          }
+        });
       })
       .catch(err => {
         reject(err);
@@ -78,6 +80,6 @@ export class IdentityService {
 
   logout() {
     localStorage.clear();
-    this.aurelia.setRoot('login');
+    return this.aurelia.setRoot('login');
   }
 }

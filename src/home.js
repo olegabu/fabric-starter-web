@@ -20,9 +20,7 @@ export class Home {
   }
 
   attached() {
-    // this.queryOrgs();
     this.queryChannels();
-    this.queryAll();
 
     this.subscriberBlock = this.eventAggregator.subscribe('block', o => {
       log.debug('block', o);
@@ -35,24 +33,6 @@ export class Home {
   }
 
   queryAll() {
-    this.queryStorage();
-  }
-
-  queryStorage() {
-    this.chaincodeService.query('common', 'reference', 'list', ['storage']).then(o => {
-      this.storageList = o;
-    });
-  }
-
-  queryOrgs() {
-    this.configService.get().then(config => {
-      let networkConfig = config['network-config'];
-      Object.keys(networkConfig).forEach(k => {
-        if(k !== 'orderer') {
-          this.orgList.push({key: k, value: networkConfig[k]});
-        }
-      });
-    });
   }
 
   queryChannels() {

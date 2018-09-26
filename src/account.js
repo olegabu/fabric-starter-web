@@ -19,16 +19,4 @@ export class Account extends CRUD {
     this.accountEdit = {new: true, value: {}};
   }
 
-  setCurrent(key) {
-    return super.setCurrent(key);
-  }
-
-  canEdit() {
-    return true;
-  }
-
-  put(o, entity) {
-    o.id = o.value.number;
-    return super.put(o, entity);
-  }
 }

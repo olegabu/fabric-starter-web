@@ -3,11 +3,11 @@ import {inject} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {IdentityService} from './services/identity-service';
 import {ChaincodeService} from './services/chaincode-service';
-import { ValidationControllerFactory, ValidationRules } from 'aurelia-validation';
+import {ValidationControllerFactory, ValidationRules} from 'aurelia-validation';
 
 let log = LogManager.getLogger('CRUD');
 
-@inject(IdentityService, EventAggregator, ChaincodeService,ValidationControllerFactory)
+@inject(IdentityService, EventAggregator, ChaincodeService, ValidationControllerFactory)
 export class CRUD {
   channel = 'common';
   chaincode = 'reference';
@@ -43,6 +43,8 @@ export class CRUD {
         e.id = this.fromKey(e.key)[1];
         return e;
       });
+    }).catch(e => {
+      log.error('cannot query', e);
     });
   }
 
@@ -53,13 +55,19 @@ export class CRUD {
     let args = this.fromKey(o.key).concat([JSON.stringify(o.value)]);
     return this.chaincodeService.invoke(this.channel, this.chaincode, 'put', args).then(() => {
       this.removeEdit(entity);
+    }).catch(e => {
+      log.error('cannot put', e);
     });
   }
 
   remove(key) {
     let args = this.fromKey(key);
     let entity = args[0];
-    return this.chaincodeService.invoke(this.channel, this.chaincode, 'delete', args).then(() => {this.removeEdit(entity)});
+    return this.chaincodeService.invoke(this.channel, this.chaincode, 'delete', args).then(() => {
+      this.removeEdit(entity)
+    }).catch(e => {
+      log.error('cannot remove', e);
+    });
   }
 
   removeEdit(entity) {
@@ -72,6 +80,8 @@ export class CRUD {
     let id = args[1];
     return this.chaincodeService.query(this.channel, this.chaincode, 'get', args).then(o => {
       this[this.getCurrentTag(entity)] = {key: key, value: o, id: id};
+    }).catch(e => {
+      log.error('cannot query', e);
     });
   }
 
@@ -84,7 +94,8 @@ export class CRUD {
   }
 
   canEdit(entity) {
-    return this.identityService.org === 'regulator';
+    //return this.identityService.org === 'regulator';
+    return true;
   }
 
   keyDelim = '\u0000';
@@ -101,9 +112,10 @@ export class CRUD {
   guid() {
     function s4() {
       return Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16)
-      .substring(1);
+        .toString(16)
+        .substring(1);
     }
+
     return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
   }
 }
