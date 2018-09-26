@@ -31,12 +31,13 @@ organizations who will run their REST API servers which will serve this web app.
 
 ## Serve by the API servers
 
-Build to be served by fabric-rest servers of fabric-starter network, assume it's cloned into `../fabric-starter`:
+Build to be served by [fabric-starter-rest](https://github.com/olegabu/fabric-starter-rest), 
+assume it's cloned into `../fabric-starter-rest`.
 ```bash
 au build --env stage \
-&& cp index.html ../fabric-starter/www/ \
-&& cp -r scripts ../fabric-starter/www/ \
-&& mkdir -p ../fabric-starter/www/src && cp -r src/locales ../fabric-starter/www/src
+&& cp index.html ../fabric-starter/webapp/ \
+&& cp -r scripts ../fabric-starter/webapp/ \
+&& mkdir -p ../fabric-starter/webapp/src && cp -r src/locales ../fabric-starter/webapp/src
 ```
 
 ## Development
